@@ -31,10 +31,18 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 버튼 위치 강제 중앙 고정 ---
+# --- CSS: 좌우 여백 무력화 및 버튼 절대 중앙 정렬 ---
 st.markdown("""
 <style>
+    /* 전체 배경 */
     .stApp { background-color: #0e1117; }
+
+    /* Streamlit 기본 레이아웃 여백 제거 (버튼이 왼쪽으로 쏠리는 원인 차단) */
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important;
+    }
 
     /* 1. 타이틀 전광판 */
     .title-banner {
@@ -83,16 +91,15 @@ st.markdown("""
         text-shadow: 0 0 10px rgba(246, 224, 94, 0.8);
     }
 
-    /* 3. PUSH 버튼: CSS 강제 중앙 정렬 */
-    /* 버튼이 들어있는 div를 강제로 중앙 정렬 */
-    .stButton {
+    /* 3. PUSH 버튼: 좌우 위치 절대 중앙 고정 */
+    /* 버튼을 감싸는 컨테이너 정렬 */
+    div.stButton {
         display: flex !important;
         justify-content: center !important;
-        align-items: center !important;
         width: 100% !important;
     }
 
-    .stButton > button {
+    div.stButton > button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
         border-radius: 50% !important;
@@ -103,12 +110,11 @@ st.markdown("""
         font-weight: bold !important;
         font-size: 1.2rem !important;
         
-        /* 마진 자동 계산으로 중앙 배치 보장 */
-        margin-left: auto !important;
-        margin-right: auto !important;
+        /* 중심축 고정을 위한 핵심 마진 설정 */
+        margin: 0 auto !important;
     }
 
-    .stButton > button:active {
+    div.stButton > button:active {
         transform: translateY(6px) !important;
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
@@ -152,16 +158,14 @@ slot_placeholder = st.empty()
 initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
 slot_placeholder.markdown(f'<div class="slot-container">{initial_slots}</div>', unsafe_allow_html=True)
 
-# --- 버튼 영역: 정가운데 고정용 컬럼 설정 ---
-# 0.5 : 1 : 0.5 비율로 양옆을 띄워서 중앙 컬럼이 무조건 가운데 오게 함
-_, center_col, _ = st.columns([0.5, 1, 0.5])
-with center_col:
-    if st.button("PUSH"):
-        st.session_state.playing = True
+# --- 버튼 영역: 정중앙 배치를 위해 컬럼 없이 직접 배치 ---
+# CSS에서 div.stButton을 강제 정렬하므로 columns 없이 사용합니다.
+if st.button("PUSH"):
+    st.session_state.playing = True
 
 # --- 결과 실행 로직 ---
 if st.session_state.playing:
-    st.components.v1.html('<audio autoplay><source src="https://www.myinstants.com/media/sounds/jackpot.mp3"></audio>', height=0)
+    st.components.v1.html('<audio autoplay><source src="https://www.myinstants.com/audio/jackpot.mp3"></audio>', height=0)
 
     for _ in range(15):
         temp_nums = [str(random.randint(1, 45)).zfill(2) for _ in range(6)]
