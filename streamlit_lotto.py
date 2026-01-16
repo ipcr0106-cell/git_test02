@@ -44,22 +44,27 @@ st.markdown("""
         width: 100% !important;
         margin: 0 auto !important;
     }
+    /* PUSH 버튼: Streamlit Cloud에서도 확실히 중앙 고정 */
+    div[data-testid="stButton"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
 
     /* PUSH 버튼 디자인 및 중앙 정렬 */
     .stButton > button {
-        background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
-        color: white !important;
-        border-radius: 50% !important;
-        width: 120px !important;
-        height: 120px !important;
-        border: 8px solid #ffd700 !important;
-        box-shadow: 0px 10px 0px 0px #500000, 0px 15px 30px rgba(0,0,0,0.5) !important;
-        transition: all 0.1s !important;
-        
-        /* 버튼 자체의 마진을 자동으로 두어 정가운데 고정 */
-        margin-left: auto !important;
-        margin-right: auto !important;
-        display: block !important;
+    background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 120px !important;
+    height: 120px !important;
+    border: 8px solid #ffd700 !important;
+    box-shadow: 0px 10px 0px 0px #500000, 0px 15px 30px rgba(0,0,0,0.5) !important;
+    transition: all 0.1s !important;
+    display: block !important;
+}
+
     }
 
     .stButton > button:active {
