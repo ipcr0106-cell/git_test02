@@ -31,51 +31,30 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 전구 반짝임 애니메이션 추가 ---
+# --- CSS: 이미지 디자인 완벽 재현 ---
 st.markdown("""
 <style>
-    /* 1. 타이틀 배너: 애니메이션 테두리 */
+    /* 1. 타이틀: 빨간 전광판 + 전구 테두리 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
-        border: 6px solid #ffd700;
+        border: 8px solid #ffd700;
         border-radius: 50px;
-        padding: 20px 30px;
+        padding: 10px 30px;
         text-align: center;
-        box-shadow: 0 0 20px #ff0000;
+        box-shadow: 0 0 15px #ffd700;
         margin-bottom: 20px;
         position: relative;
-        overflow: hidden;
     }
-
-    /* 전구 효과를 위한 가상 요소 (점선 테두리가 반짝이는 느낌) */
-    .title-banner::before {
-        content: '';
-        position: absolute;
-        top: -10px; left: -10px; right: -10px; bottom: -10px;
-        border: 8px dotted #fff; /* 전구 모양을 점선으로 표현 */
-        border-radius: 60px;
-        opacity: 0.8;
-        animation: blink 0.8s infinite; /* 0.8초마다 반짝임 */
-    }
-
-    @keyframes blink {
-        0% { opacity: 0.2; filter: drop-shadow(0 0 2px #ffd700); }
-        50% { opacity: 1; filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 25px #ffd700); }
-        100% { opacity: 0.2; filter: drop-shadow(0 0 2px #ffd700); }
-    }
-
     .title-text {
         color: #ffffff;
         font-family: 'Arial Black', sans-serif;
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: bold;
-        text-shadow: 3px 3px 10px rgba(0,0,0,0.7);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         margin: 0;
-        position: relative; /* 전구 위로 텍스트가 오게 설정 */
-        z-index: 1;
     }
 
-    /* 2. 전광판 디자인 (기존 유지) */
+    /* 2. 전광판: 둥근 검정 사각형 + 노란색 네온 숫자 */
     .slot-container {
         background-color: #111111 !important;
         border-radius: 30px !important;
@@ -94,9 +73,11 @@ st.markdown("""
         font-size: 2.8rem !important;
         color: #f6e05e !important;
         text-shadow: 0 0 15px rgba(246, 224, 94, 1) !important;
+        border-right: 2px solid #222 !important;
     }
+    .slot-box:last-child { border-right: none !important; }
 
-    /* 3. 버튼 디자인 (기존 유지) */
+    /* 3. 레버 버튼: 입체적인 붉은 버튼 */
     .stButton>button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
@@ -105,21 +86,40 @@ st.markdown("""
         height: 120px !important;
         border: 8px solid #ffd700 !important;
         box-shadow: 0px 10px 0px 0px #500000, 0px 15px 30px rgba(0,0,0,0.5) !important;
+        transition: all 0.1s !important;
         display: block !important;
         margin: 0 auto !important;
+    }
+    .stButton>button:active {
+        transform: translateY(8px) !important;
+        box-shadow: 0px 2px 0px 0px #500000 !important;
+    }
+
+    /* 4. 티켓 디자인: 영수증 감성 */
+    .ticket {
+        background-color: #ffffff;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        font-family: 'Courier New', monospace;
+        text-align: center;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- 메인 화면 구성 ---
+# 상단 타이틀 배너
 st.markdown("""
     <div class="title-banner">
-        <p class="title-text">✨ LUCKY JACKPOT ✨</p>
+        <p class="title-text">🎰 LUCKY JACKPOT</p>
     </div>
-    <p style="text-align:center; color:#ddd; font-weight:bold;">WINNER WINNER CHICKEN DINNER!</p>
+    <p style="text-align:center; color:#666; font-size:1.1rem;">아래 버튼(레버)을 눌러 행운을 잡으세요!</p>
     """, unsafe_allow_html=True)
 
-# ... (이후 버튼 및 로또 로직은 동일하게 사용하시면 됩니다)
+if 'playing' not in st.session_state:
+    st.session_state.playing = False
 
 # 전광판 플레이스홀더
 slot_placeholder = st.empty()
