@@ -31,10 +31,9 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 버튼 절대 중앙 정렬 및 모바일 최적화 ---
+# --- CSS: 버튼 위치 강제 중앙 고정 ---
 st.markdown("""
 <style>
-    /* 전체 배경 */
     .stApp { background-color: #0e1117; }
 
     /* 1. 타이틀 전광판 */
@@ -75,7 +74,7 @@ st.markdown("""
         display: flex !important;
         justify-content: space-around !important;
         box-shadow: inset 0px 0px 20px rgba(0,0,0,1) !important;
-        margin-bottom: 120px !important; /* 버튼 공간 확보 */
+        margin-bottom: 30px !important;
         border: 2px solid #333 !important;
     }
     .slot-box {
@@ -84,37 +83,37 @@ st.markdown("""
         text-shadow: 0 0 10px rgba(246, 224, 94, 0.8);
     }
 
-    /* 3. PUSH 버튼: 화면 가로 중앙 절대 정렬 */
-    /* 버튼의 컨테이너를 부모 너비 100%로 잡고 정렬 */
-    div.stButton {
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        width: 100%;
+    /* 3. PUSH 버튼: CSS 강제 중앙 정렬 */
+    /* 버튼이 들어있는 div를 강제로 중앙 정렬 */
+    .stButton {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
     }
 
-    div.stButton > button {
+    .stButton > button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
         border-radius: 50% !important;
-        width: 110px !important;
-        height: 110px !important;
-        border: 6px solid #ffd700 !important;
+        width: 120px !important;
+        height: 120px !important;
+        border: 8px solid #ffd700 !important;
         box-shadow: 0px 8px 0px 0px #500000, 0px 10px 20px rgba(0,0,0,0.5) !important;
         font-weight: bold !important;
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
         
-        /* 버튼의 중심축을 화면 중앙에 맞춤 */
-        margin: 0 auto !important;
-        display: block !important;
+        /* 마진 자동 계산으로 중앙 배치 보장 */
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
-    div.stButton > button:active {
+    .stButton > button:active {
         transform: translateY(6px) !important;
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
 
-    /* 4. 티켓 디자인 (모바일 1줄 최적화) */
+    /* 4. 티켓 디자인 */
     .ticket {
         background-color: #ffffff;
         border: 2px dashed #ccc;
@@ -125,7 +124,7 @@ st.markdown("""
         color: #333;
     }
     .ticket-numbers {
-        font-size: 1.3rem; /* 모바일 안전 크기 */
+        font-size: 1.3rem;
         color: #ff4b4b;
         font-weight: bold;
         letter-spacing: 1px;
@@ -153,9 +152,12 @@ slot_placeholder = st.empty()
 initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
 slot_placeholder.markdown(f'<div class="slot-container">{initial_slots}</div>', unsafe_allow_html=True)
 
-# --- 버튼 영역 (PUSH 버튼 중앙 배치) ---
-if st.button("PUSH"):
-    st.session_state.playing = True
+# --- 버튼 영역: 정가운데 고정용 컬럼 설정 ---
+# 0.5 : 1 : 0.5 비율로 양옆을 띄워서 중앙 컬럼이 무조건 가운데 오게 함
+_, center_col, _ = st.columns([0.5, 1, 0.5])
+with center_col:
+    if st.button("PUSH"):
+        st.session_state.playing = True
 
 # --- 결과 실행 로직 ---
 if st.session_state.playing:
