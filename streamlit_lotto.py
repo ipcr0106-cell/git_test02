@@ -31,27 +31,49 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 이미지 디자인 완벽 재현 ---
+# --- CSS: 이미지 디자인 완벽 재현 (전구 애니메이션 추가) ---
 st.markdown("""
 <style>
-    /* 1. 타이틀: 빨간 전광판 + 전구 테두리 */
+    /* 1. 타이틀: 리얼 전구 전광판 스타일 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
-        border: 8px solid #ffd700;
-        border-radius: 50px;
-        padding: 10px 30px;
+        border: 6px solid #444; /* 전구 베이스 테두리 */
+        border-radius: 20px;
+        padding: 25px 30px;
         text-align: center;
-        box-shadow: 0 0 15px #ffd700;
-        margin-bottom: 20px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        margin-bottom: 25px;
         position: relative;
+        overflow: visible; /* 전구가 튀어나올 수 있게 */
     }
+
+    /* 전구 공통 스타일 */
+    .bulb {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: #fff;
+        border-radius: 50%;
+        z-index: 10;
+    }
+
+    /* 전구 반짝임 애니메이션: 홀수/짝수 엇갈림 */
+    .bulb:nth-child(odd) { animation: bulb-flash 0.6s infinite alternate; }
+    .bulb:nth-child(even) { animation: bulb-flash 0.6s infinite alternate-reverse; }
+
+    @keyframes bulb-flash {
+        0% { background-color: #555; box-shadow: none; }
+        100% { background-color: #ffcc00; box-shadow: 0 0 15px #ffcc00, 0 0 25px #ffcc00; }
+    }
+
     .title-text {
         color: #ffffff;
         font-family: 'Arial Black', sans-serif;
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
         margin: 0;
+        letter-spacing: 2px;
     }
 
     /* 2. 전광판: 둥근 검정 사각형 + 노란색 네온 숫자 */
@@ -95,7 +117,7 @@ st.markdown("""
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
 
-    /* 4. 티켓 디자인: 영수증 감성 */
+    /* 4. 티켓 디자인 */
     .ticket {
         background-color: #ffffff;
         border: 2px dashed #ccc;
@@ -110,12 +132,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 메인 화면 구성 ---
-# 상단 타이틀 배너
-st.markdown("""
+
+# 타이틀 전구 배치를 위한 HTML 생성
+bulbs_html = ""
+# 상단/하단 배치 (간격 6%)
+for i in range(0, 101, 6):
+    bulbs_html += f'<div class="bulb" style="top: -6px; left: {i}%;"></div>'
+    bulbs_html += f'<div class="bulb" style="bottom: -6px; left: {i}%;"></div>'
+# 좌측/우측 배치 (간격 20%)
+for i in range(15, 86, 20):
+    bulbs_html += f'<div class="bulb" style="left: -6px; top: {i}%;"></div>'
+    bulbs_html += f'<div class="bulb" style="right: -6px; top: {i}%;"></div>'
+
+# 상단 타이틀 배너 출력
+st.markdown(f"""
     <div class="title-banner">
+        {bulbs_html}
         <p class="title-text">🎰 LUCKY JACKPOT</p>
     </div>
-    <p style="text-align:center; color:#666; font-size:1.1rem;">아래 버튼(레버)을 눌러 행운을 잡으세요!</p>
+    <p style="text-align:center; color:#666; font-size:1.1rem; font-weight:bold;">WINNER WINNER CHICKEN DINNER!</p>
     """, unsafe_allow_html=True)
 
 if 'playing' not in st.session_state:
@@ -131,7 +166,7 @@ if st.button("PUSH"):
     st.session_state.playing = True
 
 if st.session_state.playing:
-    # 잭팟 효과음 (웹 오디오)
+    # 잭팟 효과음
     st.components.v1.html('<audio autoplay><source src="https://www.myinstants.com/media/sounds/jackpot.mp3"></audio>', height=0)
 
     # 1. 롤링 애니메이션
