@@ -31,9 +31,14 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 타이틀 디자인 및 전구 애니메이션 수정 ---
+# --- CSS: 배경색 및 버튼 중앙 정렬 수정 ---
 st.markdown("""
 <style>
+    /* 전체 배경을 어둡게 설정 */
+    .stApp {
+        background-color: #0e1117;
+    }
+
     /* 1. 타이틀: 리얼 전구 전광판 스타일 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
@@ -55,7 +60,6 @@ st.markdown("""
         background-color: #fff;
         border-radius: 50%;
         z-index: 10;
-        /* 전구 전체가 동시에 깜빡이도록 설정 */
         animation: bulb-flash 0.8s infinite alternate;
     }
 
@@ -71,11 +75,9 @@ st.markdown("""
         font-weight: bold;
         margin: 0;
         letter-spacing: 2px;
-        /* 금색 그라데이션 적용 */
         background: linear-gradient(to bottom, #fff3ad 0%, #ffcc00 45%, #b38600 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        /* 금속 질감을 위한 드롭 쉐도우 */
         filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
     }
 
@@ -102,7 +104,11 @@ st.markdown("""
     }
     .slot-box:last-child { border-right: none !important; }
 
-    /* 3. 레버 버튼: 입체적인 붉은 버튼 */
+    /* 3. 레버 버튼: 입체적인 붉은 버튼 및 중앙 정렬 */
+    .stButton {
+        display: flex;
+        justify-content: center;
+    }
     .stButton>button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
@@ -112,8 +118,7 @@ st.markdown("""
         border: 8px solid #ffd700 !important;
         box-shadow: 0px 10px 0px 0px #500000, 0px 15px 30px rgba(0,0,0,0.5) !important;
         transition: all 0.1s !important;
-        display: block !important;
-        margin: 0 auto !important;
+        margin: 20px auto !important;
     }
     .stButton>button:active {
         transform: translateY(8px) !important;
@@ -130,6 +135,7 @@ st.markdown("""
         font-family: 'Courier New', monospace;
         text-align: center;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        color: #333; /* 어두운 배경에서 글씨가 잘 보이게 설정 */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -138,11 +144,9 @@ st.markdown("""
 
 # 타이틀 전구 배치를 위한 HTML 생성
 bulbs_html = ""
-# 상단/하단 배치 (간격 6%)
 for i in range(0, 101, 6):
     bulbs_html += f'<div class="bulb" style="top: -6px; left: {i}%;"></div>'
     bulbs_html += f'<div class="bulb" style="bottom: -6px; left: {i}%;"></div>'
-# 좌측/우측 배치 (간격 20%)
 for i in range(15, 86, 20):
     bulbs_html += f'<div class="bulb" style="left: -6px; top: {i}%;"></div>'
     bulbs_html += f'<div class="bulb" style="right: -6px; top: {i}%;"></div>'
@@ -153,7 +157,7 @@ st.markdown(f"""
         {bulbs_html}
         <p class="title-text">🎰 LUCKY JACKPOT</p>
     </div>
-    <p style="text-align:center; color:#666; font-size:1.1rem; font-weight:bold;">WINNER WINNER CHICKEN DINNER!</p>
+    <p style="text-align:center; color:#ccc; font-size:1.1rem; font-weight:bold;">WINNER WINNER CHICKEN DINNER!</p>
     """, unsafe_allow_html=True)
 
 if 'playing' not in st.session_state:
@@ -164,7 +168,7 @@ slot_placeholder = st.empty()
 initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
 slot_placeholder.markdown(f'<div class="slot-container">{initial_slots}</div>', unsafe_allow_html=True)
 
-# 레버 버튼
+# 레버 버튼 (가운데 정렬은 CSS에서 처리됨)
 if st.button("PUSH"):
     st.session_state.playing = True
 
@@ -187,7 +191,7 @@ if st.session_state.playing:
     st.balloons()
     
     # 3. 티켓 6쌍 출력
-    st.markdown("<h3 style='text-align:center;'>🎟️ 당신의 행운 티켓</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; color:white;'>🎟️ 당신의 행운 티켓</h3>", unsafe_allow_html=True)
     now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
     for i in range(6):
         nums = sorted(random.sample(range(1, 46), 6))
