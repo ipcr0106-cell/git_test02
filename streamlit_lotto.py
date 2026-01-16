@@ -31,7 +31,7 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 배경색 및 버튼 스타일 ---
+# --- CSS: 모바일 최적화 및 디자인 조정 ---
 st.markdown("""
 <style>
     .stApp {
@@ -41,20 +41,19 @@ st.markdown("""
     /* 1. 타이틀 전광판 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
-        border: 6px solid #444; 
+        border: 4px solid #444; 
         border-radius: 20px;
-        padding: 25px 30px;
+        padding: 20px 15px;
         text-align: center;
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        margin-bottom: 25px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+        margin-bottom: 20px;
         position: relative;
-        overflow: visible;
     }
 
     .bulb {
         position: absolute;
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         background-color: #fff;
         border-radius: 50%;
         z-index: 10;
@@ -63,84 +62,90 @@ st.markdown("""
 
     @keyframes bulb-flash {
         0% { background-color: #444; box-shadow: none; }
-        100% { background-color: #ffcc00; box-shadow: 0 0 15px #ffcc00, 0 0 25px #ffcc00; }
+        100% { background-color: #ffcc00; box-shadow: 0 0 15px #ffcc00; }
     }
 
     .title-text {
         font-family: 'Arial Black', sans-serif;
-        font-size: 2.8rem;
+        font-size: 2.2rem; /* 모바일을 위해 크기 소폭 축소 */
         font-weight: bold;
         margin: 0;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
         background: linear-gradient(to bottom, #fff3ad 0%, #ffcc00 45%, #b38600 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+        filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.5));
     }
 
-    /* 2. 전광판 숫자 박스 */
+    /* 2. 전광판 숫자 박스 (중앙 정렬 강화) */
     .slot-container {
         background-color: #111111 !important;
-        border-radius: 30px !important;
-        padding: 30px 10px !important;
+        border-radius: 20px !important;
+        padding: 20px 5px !important;
         display: flex !important;
-        justify-content: center !important;
-        box-shadow: inset 0px 0px 30px rgba(0,0,0,1) !important;
-        margin: 30px 0px !important;
+        justify-content: space-around !important;
+        box-shadow: inset 0px 0px 20px rgba(0,0,0,1) !important;
+        margin: 20px 0px !important;
         border: 2px solid #333 !important;
     }
     .slot-box {
         flex: 1 !important;
         text-align: center !important;
         font-family: 'Arial Black', sans-serif !important;
-        font-size: 2.8rem !important;
+        font-size: 2rem !important; /* 모바일 슬롯 크기 조정 */
         color: #f6e05e !important;
-        text-shadow: 0 0 15px rgba(246, 224, 94, 1) !important;
-        border-right: 2px solid #222 !important;
+        text-shadow: 0 0 10px rgba(246, 224, 94, 0.8) !important;
     }
-    .slot-box:last-child { border-right: none !important; }
 
-    /* 3. PUSH 버튼 스타일 */
+    /* 3. PUSH 버튼 스타일 및 위치 조정 */
     .stButton>button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
         border-radius: 50% !important;
-        width: 130px !important;
-        height: 130px !important;
-        border: 8px solid #ffd700 !important;
-        box-shadow: 0px 10px 0px 0px #500000, 0px 15px 30px rgba(0,0,0,0.5) !important;
+        width: 110px !important;
+        height: 110px !important;
+        border: 6px solid #ffd700 !important;
+        box-shadow: 0px 8px 0px 0px #500000, 0px 10px 20px rgba(0,0,0,0.5) !important;
         transition: all 0.1s !important;
         font-weight: bold !important;
-        font-size: 1.2rem !important;
+        font-size: 1.1rem !important;
+        margin-left: 5px; /* 미세하게 오른쪽으로 밀기 위해 추가 */
     }
     .stButton>button:active {
-        transform: translateY(8px) !important;
+        transform: translateY(6px) !important;
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
 
-    /* 4. 티켓 디자인 */
+    /* 4. 티켓 디자인 (숫자 크기 모바일 최적화) */
     .ticket {
         background-color: #ffffff;
         border: 2px dashed #ccc;
         border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
+        padding: 15px 10px;
+        margin-bottom: 15px;
         font-family: 'Courier New', monospace;
         text-align: center;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         color: #333;
-        width: 100%; /* 1열을 꽉 채우도록 설정 */
+        width: 100%;
+    }
+    .ticket-numbers {
+        font-size: 1.4rem !important; /* 한 줄에 다 들어오도록 크기 축소 */
+        color: #ff4b4b;
+        font-weight: bold;
+        letter-spacing: 1px; /* 간격 소폭 축소 */
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- 메인 화면 구성 ---
 
+# 타이틀 전구 HTML
 bulbs_html = ""
-for i in range(0, 101, 6):
+for i in range(0, 101, 8):
     bulbs_html += f'<div class="bulb" style="top: -6px; left: {i}%;"></div>'
     bulbs_html += f'<div class="bulb" style="bottom: -6px; left: {i}%;"></div>'
-for i in range(15, 86, 20):
+for i in range(20, 81, 30):
     bulbs_html += f'<div class="bulb" style="left: -6px; top: {i}%;"></div>'
     bulbs_html += f'<div class="bulb" style="right: -6px; top: {i}%;"></div>'
 
@@ -149,7 +154,6 @@ st.markdown(f"""
         {bulbs_html}
         <p class="title-text">🎰 LUCKY JACKPOT</p>
     </div>
-    <p style="text-align:center; color:#ccc; font-size:1.1rem; font-weight:bold;">WINNER WINNER CHICKEN DINNER!</p>
     """, unsafe_allow_html=True)
 
 if 'playing' not in st.session_state:
@@ -159,8 +163,9 @@ slot_placeholder = st.empty()
 initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
 slot_placeholder.markdown(f'<div class="slot-container">{initial_slots}</div>', unsafe_allow_html=True)
 
-# --- 버튼 중앙 정렬 (Columns 활용) ---
-col1, col2, col3 = st.columns([1, 1, 1])
+# --- 버튼 중앙 정렬 (오른쪽으로 살짝 이동 보정) ---
+# 컬럼 비율을 조정하여 가운데 컬럼이 약간 더 오른쪽을 바라보게 설정
+col1, col2, col3 = st.columns([1, 1.2, 1]) 
 with col2:
     if st.button("PUSH"):
         st.session_state.playing = True
@@ -170,29 +175,27 @@ if st.session_state.playing:
 
     for _ in range(15):
         temp_nums = [str(random.randint(1, 45)).zfill(2) for _ in range(6)]
-        slots_html = "".join([f'<div class="slot-box">{n}</div>' for n in temp_nums])
+        slots_html = "".join([f'<div class="slot-box" style="margin: 0 2px;">{n}</div>' for n in temp_nums])
         slot_placeholder.markdown(f'<div class="slot-container">{slots_html}</div>', unsafe_allow_html=True)
         time.sleep(0.08)
     
     final_numbers = sorted(random.sample(range(1, 46), 6))
-    final_slots_html = "".join([f'<div class="slot-box">{str(n).zfill(2)}</div>' for n in final_numbers])
+    final_slots_html = "".join([f'<div class="slot-box" style="margin: 0 2px;">{str(n).zfill(2)}</div>' for n in final_numbers])
     slot_placeholder.markdown(f'<div class="slot-container">{final_slots_html}</div>', unsafe_allow_html=True)
     
     st.balloons()
     
-    # --- 티켓 5개 1열 출력 ---
-    st.markdown("<h3 style='text-align:center; color:white; margin-top:30px;'>🎟️ 당신의 행운 티켓</h3>", unsafe_allow_html=True)
-    now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    st.markdown("<h3 style='text-align:center; color:white; margin-top:20px;'>🎟️ 행운의 티켓 (5장)</h3>", unsafe_allow_html=True)
+    now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
     
-    # 반복문을 5회로 수정하여 5장만 출력
     for i in range(5):
         nums = sorted(random.sample(range(1, 46), 6))
         num_str = " ".join([str(n).zfill(2) for n in nums])
         st.markdown(f"""
         <div class="ticket">
-            <div style="font-weight:bold; border-bottom:1px solid #eee; margin-bottom:10px;">LUCKY TICKET #{i+1}</div>
-            <div style="font-size:1.8rem; color:#ff4b4b; font-weight:bold; letter-spacing:3px;">{num_str}</div>
-            <div style="font-size:0.8rem; color:#999; margin-top:10px;">ISSUED: {now}</div>
+            <div style="font-weight:bold; border-bottom:1px solid #eee; margin-bottom:8px; font-size:0.8rem; color:#666;">LOTTO TICKET #{i+1}</div>
+            <div class="ticket-numbers">{num_str}</div>
+            <div style="font-size:0.7rem; color:#aaa; margin-top:8px;">{now} 발행</div>
         </div>
         """, unsafe_allow_html=True)
 
