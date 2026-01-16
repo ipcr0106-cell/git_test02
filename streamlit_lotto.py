@@ -33,143 +33,99 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- 커스텀 스타일 (레버 애니메이션 및 티켓 디자인) ---
+# --- CSS: 디자인 스타일 시트 ---
 st.markdown("""
 <style>
-    /* 잭팟 레버 디자인 */
-    .stButton>button {
-        background: linear-gradient(145deg, #ff4b4b, #cc0000);
-        color: white;
-        border-radius: 50px;
-        height: 80px;
-        width: 80px;
-        font-size: 30px;
-        border: 4px solid #ffd700;
-        box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
-    }
-    .stButton>button:active {
-        transform: translateY(20px); /* 레버가 눌리는 느낌 */
-        background: #990000;
-    }
-            # --- CSS 수정 부분 ---
-    /* 슬롯 전광판 (이미지 스타일 재현) */
+    /* 1. 슬롯 전광판 배경 (이미지 재현) */
     .slot-container {
-        background-color: #1a1a1a; /* 어두운 배경 */
-        border-radius: 20px;       /* 테두리 둥글게 */
-        padding: 15px 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 2px solid #333;
-        box-shadow: inset 0px 0px 15px rgba(0,0,0,0.5);
-        margin-bottom: 30px;
+        background-color: #1a1a1a !important;
+        border-radius: 20px !important;
+        padding: 20px 10px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        border: 3px solid #333 !important;
+        box-shadow: inset 0px 0px 20px rgba(0,0,0,0.8) !important;
+        margin: 20px 0px !important;
+        width: 100% !important;
     }
 
+    /* 2. 개별 숫자 박스 및 구분선 */
     .slot-box {
-        flex: 1;
-        text-align: center;
-        font-family: 'Arial Black', sans-serif;
-        font-size: 2.5rem;
-        color: #f6e05e; /* 이미지와 유사한 밝은 노란색 */
-        text-shadow: 0 0 10px rgba(246, 224, 94, 0.8), 0 0 20px rgba(246, 224, 94, 0.5); /* 네온 효과 */
-        border-right: 1px solid #444; /* 숫자 사이 구분선 */
+        flex: 1 !important;
+        text-align: center !important;
+        font-family: 'Arial Black', sans-serif !important;
+        font-size: 2.2rem !important;
+        color: #f6e05e !important; /* 이미지의 노란색 */
+        text-shadow: 0 0 10px rgba(246, 224, 94, 0.9), 0 0 20px rgba(246, 224, 94, 0.4) !important;
+        border-right: 1px solid #444 !important;
     }
 
     .slot-box:last-child {
-        border-right: none; /* 마지막 숫자는 선 제거 */
+        border-right: none !important;
     }
-    /* 티켓 디자인 */
-    .ticket {
-        background-color: #ffffff;
-        border: 2px dashed #ccc;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        font-family: 'Courier New', Courier, monospace;
-        color: #333;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        text-align: center;
+
+    /* 3. 3D 푸시 버튼 */
+    .stButton>button {
+        background: radial-gradient(circle at 30% 30%, #ff4b4b, #b30000) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 100px !important;
+        height: 100px !important;
+        border: 4px solid #333 !important;
+        font-weight: bold !important;
+        box-shadow: 0px 8px 0px 0px #800000, 0px 10px 20px rgba(0,0,0,0.4) !important;
+        transition: all 0.1s !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
-    .ticket-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-    }
-    .lotto-numbers {
-        font-size: 1.5rem;
-        letter-spacing: 5px;
-        color: #ff4b4b;
-        font-weight: bold;
-    }
-    .ticket-footer {
-        font-size: 0.8rem;
-        color: #888;
-        margin-top: 10px;
+
+    .stButton>button:active {
+        transform: translateY(6px) !important;
+        box-shadow: 0px 2px 0px 0px #800000, 0px 5px 10px rgba(0,0,0,0.4) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 오디오 재생 함수 (자바스크립트) ---
-# 실제 잭팟 사운드 파일 URL로 변경해주세요!
-# 예시: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-# 짧고 효과음 같은 파일을 쓰는게 좋습니다.
-AUDIO_URL = "https://www.myinstants.com/media/sounds/jackpot.mp3" # 잭팟 사운드 예시
-
-def play_audio():
-    st.components.v1.html(
-        f"""
-        <audio autoplay="true" src="{AUDIO_URL}"></audio>
-        """,
-        height=0,
-        width=0,
-    )
-
-# --- 메인 화면 ---
+# --- 메인 화면 로직 ---
 st.title("🎰 LUCKY JACKPOT")
-st.write("아래 버튼(레버)을 눌러 행운을 잡으세요!")
 
-# 중앙 정렬을 위한 컬럼 배치
-col1, col2, col3 = st.columns([1, 1, 1])
+if 'playing' not in st.session_state:
+    st.session_state.playing = False
 
-with col2:
-    handle_clicked = st.button("🕹️")
+# 초기 전광판 모습
+slot_placeholder = st.empty()
+initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
+slot_placeholder.markdown(f'<div class="slot-container">{initial_slots}</div>', unsafe_allow_html=True)
 
-if handle_clicked:
-    play_audio() # 버튼 클릭 시 오디오 재생
+# 버튼 (레버)
+if st.button("PUSH"):
+    st.session_state.playing = True
 
-    # 1. 휘리릭 돌아가는 애니메이션 효과
-    with st.empty():
-        for _ in range(10):
-            random_nums = " ".join([str(random.randint(1, 45)).zfill(2) for _ in range(6)])
-            st.markdown(f"<h1 style='text-align: center; color: #ffd700;'>{random_nums}</h1>", unsafe_allow_html=True)
-            time.sleep(0.1)
-        st.write("") # 지우기
+if st.session_state.playing:
+    # 잭팟 효과음 재생 (선택사항)
+    # st.components.v1.html('<audio autoplay><source src="https://www.myinstants.com/media/sounds/jackpot.mp3"></audio>', height=0)
 
-    st.balloons()
-
-    # 2. 6쌍의 티켓 생성
-    st.subheader("🎟️ 당신의 행운 티켓")
+    # 1. 숫자가 휘리릭 돌아가는 연출
+    for _ in range(15):
+        temp_nums = [str(random.randint(1, 45)).zfill(2) for _ in range(6)]
+        slots_html = "".join([f'<div class="slot-box">{n}</div>' for n in temp_nums])
+        slot_placeholder.markdown(f'<div class="slot-container">{slots_html}</div>', unsafe_allow_html=True)
+        time.sleep(0.08)
     
+    # 2. 결과 확정
+    final_numbers = sorted(random.sample(range(1, 46), 6))
+    final_slots_html = "".join([f'<div class="slot-box">{str(n).zfill(2)}</div>' for n in final_numbers])
+    slot_placeholder.markdown(f'<div class="slot-container">{final_slots_html}</div>', unsafe_allow_html=True)
+    
+    st.balloons()
+    
+    # 3. 티켓 출력 로직 (생략되지 않도록 유지)
+    st.markdown("### 🎟️ YOUR TICKETS")
     for i in range(6):
-        numbers = sorted(random.sample(range(1, 46), 6))
-        num_str = "  ".join([str(n).zfill(2) for n in numbers])
-        now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        
-        # 티켓 HTML 출력
-        st.markdown(f"""
-        <div class="ticket">
-            <div class="ticket-title">LOTTO LUCKY TICKET #{i+1}</div>
-            <div class="lotto-numbers">{num_str}</div>
-            <div class="ticket-footer">
-                ISSUED: {now}<br>
-                <b>GOOD LUCK TO YOU!</b>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        nums = sorted(random.sample(range(1, 46), 6))
+        num_str = " ".join([str(n).zfill(2) for n in nums])
+        st.markdown(f'<div style="background:#fff; border:1px dashed #ccc; padding:15px; margin-bottom:10px; border-radius:10px; text-align:center; font-family:monospace;"><b>TICKET #{i+1}</b><br><span style="font-size:1.5rem; color:#ff4b4b;">{num_str}</span></div>', unsafe_allow_html=True)
 
-else:
-    # 초기 화면 안내
-    st.info("레버를 당기면 6개의 티켓이 발행됩니다!")
+    st.session_state.playing = False
