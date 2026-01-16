@@ -52,7 +52,33 @@ st.markdown("""
         transform: translateY(20px); /* 레버가 눌리는 느낌 */
         background: #990000;
     }
+            # --- CSS 수정 부분 ---
+    /* 슬롯 전광판 (이미지 스타일 재현) */
+    .slot-container {
+        background-color: #1a1a1a; /* 어두운 배경 */
+        border-radius: 20px;       /* 테두리 둥글게 */
+        padding: 15px 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #333;
+        box-shadow: inset 0px 0px 15px rgba(0,0,0,0.5);
+        margin-bottom: 30px;
+    }
 
+    .slot-box {
+        flex: 1;
+        text-align: center;
+        font-family: 'Arial Black', sans-serif;
+        font-size: 2.5rem;
+        color: #f6e05e; /* 이미지와 유사한 밝은 노란색 */
+        text-shadow: 0 0 10px rgba(246, 224, 94, 0.8), 0 0 20px rgba(246, 224, 94, 0.5); /* 네온 효과 */
+        border-right: 1px solid #444; /* 숫자 사이 구분선 */
+    }
+
+    .slot-box:last-child {
+        border-right: none; /* 마지막 숫자는 선 제거 */
+    }
     /* 티켓 디자인 */
     .ticket {
         background-color: #ffffff;
