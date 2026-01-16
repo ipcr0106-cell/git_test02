@@ -31,11 +31,21 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS (디자인 유지, 버튼 위치는 columns로만 제어) ---
+# --- CSS: 배경 유지 + PUSH 버튼만 Streamlit Cloud 기준 중앙 정렬 ---
 st.markdown("""
 <style>
+    /* 배경색 유지 */
     .stApp { background-color: #0e1117; }
 
+    /* ✅ Streamlit Cloud에서도 확실한 버튼 중앙 정렬 */
+    div[data-testid="stButton"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    /* PUSH 버튼 디자인 (변경 없음) */
     .stButton > button {
         background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
@@ -54,6 +64,7 @@ st.markdown("""
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
 
+    /* 기존 타이틀 및 전구 디자인 유지 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
         border: 6px solid #444; 
@@ -67,90 +78,89 @@ st.markdown("""
     }
     .bulb {
         position: absolute; width: 12px; height: 12px;
-        background-color: #fff; border-radius: 50%;
+        background-color: #fff; border-radius: 50%; z-index: 10;
         animation: bulb-flash 0.8s infinite alternate;
     }
     @keyframes bulb-flash {
         0% { background-color: #444; box-shadow: none; }
-        100% { background-color: #ffcc00; box-shadow: 0 0 15px #ffcc00; }
+        100% { background-color: #ffcc00; box-shadow: 0 0 15px #ffcc00, 0 0 25px #ffcc00; }
     }
     .title-text {
         font-family: 'Arial Black', sans-serif;
-        font-size: 2.5rem;
-        background: linear-gradient(to bottom, #fff3ad, #ffcc00, #b38600);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem; font-weight: bold; margin: 0; letter-spacing: 2px;
+        background: linear-gradient(to bottom, #fff3ad 0%, #ffcc00 45%, #b38600 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
     }
 
+    /* 전광판 숫자 박스 유지 */
     .slot-container {
-        background-color: #111;
-        border-radius: 30px;
-        padding: 30px 10px;
-        display: flex;
-        justify-content: center;
-        margin: 30px 0;
+        background-color: #111111 !important;
+        border-radius: 30px !important;
+        padding: 30px 10px !important;
+        display: flex !important;
+        justify-content: center !important;
+        box-shadow: inset 0px 0px 30px rgba(0,0,0,1) !important;
+        margin: 30px 0px !important;
+        border: 2px solid #333 !important;
     }
     .slot-box {
-        flex: 1;
-        text-align: center;
-        font-family: 'Arial Black';
-        font-size: 2.8rem;
-        color: #f6e05e;
-        border-right: 2px solid #222;
+        flex: 1 !important; text-align: center;
+        font-family: 'Arial Black', sans-serif !important;
+        font-size: 2.8rem !important; color: #f6e05e !important;
+        text-shadow: 0 0 15px rgba(246, 224, 94, 1) !important;
+        border-right: 2px solid #222 !important;
     }
-    .slot-box:last-child { border-right: none; }
+    .slot-box:last-child { border-right: none !important; }
 
+    /* 티켓 디자인 유지 */
     .ticket {
-        background-color: #fff;
+        background-color: #ffffff;
         border: 2px dashed #ccc;
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 20px;
-        font-family: 'Courier New';
+        font-family: 'Courier New', monospace;
         text-align: center;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         color: #333;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 타이틀 ---
+# --- 메인 화면 구성 ---
 bulbs_html = ""
 for i in range(0, 101, 6):
-    bulbs_html += f'<div class="bulb" style="top:-6px; left:{i}%"></div>'
-    bulbs_html += f'<div class="bulb" style="bottom:-6px; left:{i}%"></div>'
+    bulbs_html += f'<div class="bulb" style="top: -6px; left: {i}%;"></div>'
+    bulbs_html += f'<div class="bulb" style="bottom: -6px; left: {i}%;"></div>'
+for i in range(15, 86, 20):
+    bulbs_html += f'<div class="bulb" style="left: -6px; top: {i}%;"></div>'
+    bulbs_html += f'<div class="bulb" style="right: -6px; top: {i}%;"></div>'
 
 st.markdown(f"""
 <div class="title-banner">
     {bulbs_html}
     <p class="title-text">🎰 LUCKY JACKPOT</p>
 </div>
-<p style="text-align:center; color:#ccc; font-weight:bold;">
+<p style="text-align:center; color:#ccc; font-size:1.1rem; font-weight:bold;">
 WINNER WINNER CHICKEN DINNER!
 </p>
 """, unsafe_allow_html=True)
 
-# --- 슬롯 ---
-if "playing" not in st.session_state:
+if 'playing' not in st.session_state:
     st.session_state.playing = False
 
 slot_placeholder = st.empty()
+initial_slots = "".join([f'<div class="slot-box">??</div>' for _ in range(6)])
 slot_placeholder.markdown(
-    '<div class="slot-container">' +
-    ''.join('<div class="slot-box">??</div>' for _ in range(6)) +
-    '</div>',
+    f'<div class="slot-container">{initial_slots}</div>',
     unsafe_allow_html=True
 )
 
-# ===============================
-# ✅ PUSH 버튼 (여기가 핵심)
-# ===============================
-col1, col2, col3 = st.columns([1, 1, 1])
+# ✅ PUSH 버튼 (중앙 정렬은 CSS에서만 처리)
+if st.button("PUSH"):
+    st.session_state.playing = True
 
-with col2:
-    if st.button("PUSH"):
-        st.session_state.playing = True
-
-# --- 게임 로직 ---
 if st.session_state.playing:
     st.components.v1.html(
         '<audio autoplay><source src="https://www.myinstants.com/media/sounds/jackpot.mp3"></audio>',
@@ -158,41 +168,47 @@ if st.session_state.playing:
     )
 
     for _ in range(15):
-        nums = [str(random.randint(1, 45)).zfill(2) for _ in range(6)]
+        temp_nums = [str(random.randint(1, 45)).zfill(2) for _ in range(6)]
+        slots_html = "".join([f'<div class="slot-box">{n}</div>' for n in temp_nums])
         slot_placeholder.markdown(
-            '<div class="slot-container">' +
-            ''.join(f'<div class="slot-box">{n}</div>' for n in nums) +
-            '</div>',
+            f'<div class="slot-container">{slots_html}</div>',
             unsafe_allow_html=True
         )
         time.sleep(0.08)
 
-    final = sorted(random.sample(range(1, 46), 6))
+    final_numbers = sorted(random.sample(range(1, 46), 6))
+    final_slots_html = "".join(
+        [f'<div class="slot-box">{str(n).zfill(2)}</div>' for n in final_numbers]
+    )
     slot_placeholder.markdown(
-        '<div class="slot-container">' +
-        ''.join(f'<div class="slot-box">{str(n).zfill(2)}</div>' for n in final) +
-        '</div>',
+        f'<div class="slot-container">{final_slots_html}</div>',
         unsafe_allow_html=True
     )
 
     st.balloons()
 
-    st.markdown("<h3 style='text-align:center;color:white;'>🎟️ 당신의 행운 티켓</h3>",
-                unsafe_allow_html=True)
+    st.markdown(
+        "<h3 style='text-align:center; color:white;'>🎟️ 당신의 행운 티켓</h3>",
+        unsafe_allow_html=True
+    )
 
     now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
     for i in range(5):
         nums = sorted(random.sample(range(1, 46), 6))
+        num_str = " ".join([str(n).zfill(2) for n in nums])
         st.markdown(f"""
         <div class="ticket">
-            <b>LUCKY TICKET #{i+1}</b><br><br>
-            <span style="font-size:1.6rem; color:#ff4b4b;">
-                {' '.join(str(n).zfill(2) for n in nums)}
-            </span><br>
-            <small>{now}</small>
+            <div style="font-weight:bold; border-bottom:1px solid #eee; margin-bottom:10px;">
+                LUCKY TICKET #{i+1}
+            </div>
+            <div style="font-size:1.6rem; color:#ff4b4b; font-weight:bold; letter-spacing:3px;">
+                {num_str}
+            </div>
+            <div style="font-size:0.8rem; color:#999; margin-top:10px;">
+                ISSUED: {now}
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.session_state.playing = False
-
