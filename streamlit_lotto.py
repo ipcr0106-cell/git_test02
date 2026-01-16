@@ -31,43 +31,40 @@ import datetime
 
 st.set_page_config(page_title="럭키 잭팟 로또", page_icon="🎰", layout="centered")
 
-# --- CSS: 다른 요소는 건드리지 않고 버튼의 너비와 정렬만 수정 ---
+# --- CSS: 배경 유지 + PUSH 버튼만 Streamlit Cloud 기준 중앙 정렬 ---
 st.markdown("""
 <style>
     /* 배경색 유지 */
     .stApp { background-color: #0e1117; }
 
-    /* ✅ 버튼 디자인 및 너비 강제 통일 */
-    /* 버튼이 들어가는 컨테이너의 너비를 타이틀/전광판과 맞춤 */
+    /* ✅ Streamlit Cloud에서도 확실한 버튼 중앙 정렬 */
     div[data-testid="stButton"] {
-        display: block !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         width: 100% !important;
-        max-width: 600px; /* 타이틀/전광판 너비에 맞춰 조정 가능 */
-        margin: 0 auto !important;
     }
 
+    /* PUSH 버튼 디자인 (변경 없음) */
     .stButton > button {
-        width: 100% !important; /* 가로폭을 꽉 채워서 타이틀과 정렬 맞춤 */
-        height: 70px !important;
-        background: linear-gradient(to bottom, #ff4b4b, #800000) !important;
+        background: radial-gradient(circle at 30% 30%, #ff4b4b, #800000) !important;
         color: white !important;
-        border-radius: 20px !important; /* 모서리가 둥근 사각형 */
-        font-family: 'Arial Black', sans-serif !important;
-        font-size: 1.8rem !important;
-        font-weight: bold !important;
-        border: 4px solid #ffd700 !important;
-        box-shadow: 0px 6px 0px 0px #500000, 
-                    0px 10px 20px rgba(0,0,0,0.5) !important;
+        border-radius: 50% !important;
+        width: 120px !important;
+        height: 120px !important;
+        border: 8px solid #ffd700 !important;
+        box-shadow: 0px 10px 0px 0px #500000,
+                    0px 15px 30px rgba(0,0,0,0.5) !important;
         transition: all 0.1s !important;
-        margin: 0 !important;
+        display: block !important;
     }
 
     .stButton > button:active {
-        transform: translateY(4px) !important;
+        transform: translateY(8px) !important;
         box-shadow: 0px 2px 0px 0px #500000 !important;
     }
 
-    /* 원본 타이틀 및 전구 디자인 (수정 없음) */
+    /* 기존 타이틀 및 전구 디자인 유지 */
     .title-banner {
         background: linear-gradient(to right, #b30000, #ff0000);
         border: 6px solid #444; 
@@ -96,7 +93,7 @@ st.markdown("""
         filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
     }
 
-    /* 전광판 숫자 박스 유지 (수정 없음) */
+    /* 전광판 숫자 박스 유지 */
     .slot-container {
         background-color: #111111 !important;
         border-radius: 30px !important;
@@ -116,7 +113,7 @@ st.markdown("""
     }
     .slot-box:last-child { border-right: none !important; }
 
-    /* 티켓 디자인 유지 (수정 없음) */
+    /* 티켓 디자인 유지 */
     .ticket {
         background-color: #ffffff;
         border: 2px dashed #ccc;
@@ -160,7 +157,7 @@ slot_placeholder.markdown(
     unsafe_allow_html=True
 )
 
-# ✅ PUSH 버튼 (CSS에서 너비가 100%로 강제 고정되어 중앙 정렬됨)
+# ✅ PUSH 버튼 (중앙 정렬은 CSS에서만 처리)
 if st.button("PUSH"):
     st.session_state.playing = True
 
