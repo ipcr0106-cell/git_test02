@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Lucky Jackpot Lotto</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0015 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 30px 20px 60px;
+    font-family: 'Arial Black', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── 네온 타이틀 ── */
+  .neon-title {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: #fff;
+    text-shadow:
+      0 0 7px #fff,
+      0 0 21px #fff,
+      0 0 42px #ffd700,
+      0 0 82px #ffd700,
+      0 0 92px #ffd700;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .sub-title {
+    color: #ff69b4;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px #ff69b4;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  /* ── 전구 배너 ── */
+  .bulb-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .bulb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #ffcc00;
+    box-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+    animation: bulb-blink 0.7s infinite alternate;
+  }
+  .bulb:nth-child(even) { animation-delay: 0.35s; background: #ff4444; box-shadow: 0 0 10px #ff4444, 0 0 20px #ff4444; }
+  @keyframes bulb-blink {
+    from { opacity: 0.3; }
+    to   { opacity: 1; }
+  }
+
+  /* ── 머신 본체 ── */
+  .machine-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  .machine-body {
+    background: linear-gradient(160deg, #c0392b 0%, #8b0000 40%, #6b0000 100%);
+    border: 6px solid #444;
+    border-radius: 30px 30px 20px 20px;
+    width: 480px;
+    padding: 28px 28px 36px;
+    box-shadow:
+      inset 0 4px 20px rgba(255,255,255,0.1),
+      0 20px 60px rgba(0,0,0,0.8),
+      0 0 0 3px #ffd700,
+      0 0 0 7px #444;
+    position: relative;
+  }
+
+  /* 머신 상단 전구 띠 */
+  .machine-top-bulbs {
+    position: absolute;
+    top: -18px;
+    left: 20px; right: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .machine-top-bulbs .bulb {
+    width: 16px; height: 16px;
+  }
+
+  /* 머신 로고 패널 */
+  .machine-logo {
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    border: 3px solid #ffd700;
+    border-radius: 12px;
+    text-align: center;
+    padding: 10px 0;
+    margin-bottom: 18px;
+    box-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+  .machine-logo span {
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(to bottom, #fff3ad, #ffd700, #b8860b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── 슬롯 화면 ── */
+  .slot-screen {
+    background: #000;
+    border: 4px solid #ffd700;
+    border-radius: 14px;
+    padding: 16px 10px;
+    margin-bottom: 22px;
+    box-shadow:
+      inset 0 0 40px rgba(0,0,0,0.9),
+      0 0 20px rgba(255,215,0,0.3);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slot-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.05) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(0,0,0,0.3) 100%);
+    pointer-events: none;
+    border-radius: 10px;
+    z-index: 2;
+  }
+
+  .reels-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .reel-window {
+    flex: 1;
+    height: 90px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 2px solid #222;
+    background: #0a0a0a;
+    position: relative;
+  }
+
+  .reel-strip {
+    display: flex;
+    flex-direction: column;
+    transition: none;
+    position: absolute;
+    width: 100%;
+  }
+
+  .reel-cell {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #f6e05e;
+    text-shadow: 0 0 15px rgba(246,224,94,0.9), 0 0 30px rgba(246,224,94,0.5);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* 스캔라인 효과 */
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.05);
+    animation: scan 3s linear infinite;
+    z-index: 3;
+    pointer-events: none;
+  }
+  @keyframes scan {
+    from { top: 0; }
+    to   { top: 100%; }
+  }
+
+  /* ── 하단 장식 패널 ── */
+  .bottom-panel {
+    background: linear-gradient(135deg, #111, #222);
+    border: 2px solid #333;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .bottom-panel span {
+    color: #ffd700;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px #ffd700;
+  }
+
+  /* ── 레버 (오른쪽 사이드) ── */
+  .lever-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: -6px;
+    margin-top: 40px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    z-index: 10;
+  }
+
+  .lever-base {
+    width: 36px;
+    height: 160px;
+    background: linear-gradient(90deg, #888, #ccc, #888);
+    border-radius: 6px;
+    border: 3px solid #555;
+    position: relative;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.5);
+    transition: none;
+  }
+
+  /* 레버 막대 (움직이는 부분) */
+  .lever-rod {
+    width: 18px;
+    height: 100px;
+    background: linear-gradient(90deg, #aaa, #eee, #aaa);
+    border-radius: 9px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+    transition: top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .lever-rod.pulled {
+    top: 60px;
+  }
+
+  /* 레버 손잡이 (공 모양) */
+  .lever-knob {
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b, #7b0000);
+    border-radius: 50%;
+    border: 4px solid #ffd700;
+    box-shadow:
+      0 4px 8px rgba(0,0,0,0.6),
+      0 0 20px rgba(255,100,100,0.5),
+      inset 0 -3px 6px rgba(0,0,0,0.3);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -15px;
+    transition: top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .lever-knob.pulled {
+    top: 68px;
+  }
+
+  /* 레버 라벨 */
+  .lever-label {
+    margin-top: 10px;
+    color: #ffd700;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 6px #ffd700;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+  }
+
+  /* ── 모달 오버레이 ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #1a1a2e;
+    border: 3px solid #ffd700;
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    width: min(780px, 96vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow:
+      0 0 0 6px #333,
+      0 30px 80px rgba(0,0,0,0.9),
+      0 0 40px rgba(255,215,0,0.2);
+    position: relative;
+    animation: modal-in 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes modal-in {
+    from { opacity: 0; transform: scale(0.8) translateY(30px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
+  }
+
+  .modal-title {
+    text-align: center;
+    color: #ffd700;
+    font-size: 1.4rem;
+    letter-spacing: 5px;
+    text-shadow: 0 0 15px #ffd700;
+    margin-bottom: 20px;
+  }
+
+  /* 닫기 버튼 */
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 18px;
+    background: none;
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    color: #ffd700;
+    font-size: 1.1rem;
+    width: 32px; height: 32px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: #ffd700; color: #000; }
+
+  /* 티켓 그리드: 2열 */
+  .tickets-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  /* 5번째 티켓 가운데 정렬 */
+  .tickets-grid .ticket:nth-child(5) {
+    grid-column: 1 / -1;
+    max-width: 340px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── 로또 티켓 (py 스타일) ── */
+  .ticket {
+    background-color: #ffffff;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    color: #333;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .ticket.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .ticket-label {
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    font-size: 0.95rem;
+    color: #555;
+    letter-spacing: 1px;
+  }
+
+  .ticket-numbers {
+    font-size: 1.5rem;
+    color: #ff4b4b;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin: 4px 0 12px;
+  }
+
+  .ticket-issued {
+    font-size: 0.78rem;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* 최근 100회 HOT 티켓 강조 */
+  .ticket-hot {
+    border-color: #ff4b4b;
+    background: linear-gradient(135deg, #fff8f8 0%, #fff0f0 100%);
+    box-shadow: 2px 2px 14px rgba(255, 75, 75, 0.25);
+  }
+  .hot-label {
+    color: #d32f2f !important;
+    border-bottom-color: #ffcdd2 !important;
+  }
+
+  /* ── 대박 플래시 효과 ── */
+  .jackpot-flash {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,215,0,0.15);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9999;
+    animation: flash-anim 0.15s steps(1) forwards;
+  }
+  @keyframes flash-anim {
+    0%   { opacity: 1; }
+    50%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  /* 반짝이 파티클 */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confetti-fall 2s ease-in forwards;
+    pointer-events: none;
+    z-index: 9998;
+  }
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* 레버 비활성화 상태 */
+  .lever-wrapper.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* 모바일 대응 */
+  @media (max-width: 560px) {
+    .machine-body { width: 320px; padding: 18px 14px 24px; }
+    .neon-title { font-size: 2rem; }
+    .reel-cell { font-size: 1.6rem; }
+    .reel-window { height: 70px; }
+    .reel-cell { height: 70px; }
+    .ball { width: 38px; height: 38px; font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 네온 타이틀 -->
+<div class="neon-title">🎰 LUCKY JACKPOT</div>
+<div class="sub-title">WINNER WINNER CHICKEN DINNER!</div>
+
+<!-- 전구 띠 -->
+<div class="bulb-row" id="top-bulbs"></div>
+
+<!-- 머신 + 레버 -->
+<div class="machine-wrapper">
+
+  <!-- 머신 본체 -->
+  <div class="machine-body">
+    <!-- 상단 전구 -->
+    <div class="machine-top-bulbs" id="machine-bulbs"></div>
+
+    <!-- 로고 패널 -->
+    <div class="machine-logo">
+      <span>✦ LOTTO JACKPOT ✦</span>
+    </div>
+
+    <!-- 슬롯 릴 화면 -->
+    <div class="slot-screen">
+      <div class="scan-line"></div>
+      <div class="reels-row" id="reels-row">
+        <!-- JS로 생성 -->
+      </div>
+    </div>
+
+    <!-- 하단 패널 -->
+    <div class="bottom-panel">
+      <span>★ INSERT COIN &amp; PULL LEVER ★</span>
+    </div>
+  </div>
+
+  <!-- 레버 -->
+  <div class="lever-wrapper" id="lever" onclick="pullLever()">
+    <div class="lever-base">
+      <div class="lever-rod" id="lever-rod"></div>
+      <div class="lever-knob" id="lever-knob"></div>
+    </div>
+    <div class="lever-label">PULL</div>
+  </div>
+
+</div>
+
+<!-- 팝업 모달 -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-title">🎟️ YOUR LUCKY TICKETS</div>
+    <div id="stats-badge" style="text-align:center;font-size:0.72rem;color:#aaa;margin-bottom:14px;font-family:'Courier New',monospace;letter-spacing:1px;"></div>
+    <div class="tickets-grid" id="tickets-container"></div>
+  </div>
+</div>
+
+<script>
+// ── 초기화 ──
+const NUM_REELS = 6;
+let isSpinning = false;
+
+// ── 역대 당첨 통계 (lotto_stats.json 로드) ──
+let lottoWeights        = null;   // 전체 회차 가중치 [{num, weight}, ...]
+let lottoWeightsRecent  = null;   // 최근 100회 가중치
+let lottoMeta           = null;   // {total_rounds, latest_round, ...}
+
+function buildWeights(freqObj) {
+  return Object.entries(freqObj).map(([num, cnt]) => ({
+    num: parseInt(num),
+    weight: cnt,
+  }));
+}
+
+async function loadLottoStats() {
+  try {
+    const res = await fetch('lotto_stats.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    lottoWeights       = buildWeights(data.freq);
+    lottoWeightsRecent = buildWeights(data.freq_recent100);
+    lottoMeta = {
+      total_rounds:    data.total_rounds,
+      latest_round:    data.latest_round,
+      fetched_at:      data.fetched_at,
+      recent100_start: data.recent100_start,
+      recent100_end:   data.recent100_end,
+    };
+    console.log('[LottoStats] 로드 완료:', lottoMeta);
+  } catch (e) {
+    console.warn('[LottoStats] 로드 실패, 균등 확률 사용:', e);
+    const uniform = Array.from({length: 45}, (_, i) => ({ num: i+1, weight: 1 }));
+    lottoWeights       = uniform;
+    lottoWeightsRecent = uniform;
+  }
+}
+
+// ── 가중 랜덤 추출 (비복원) ──
+// weights: [{num, weight}] 배열 (원본 유지, 내부에서 복사본 사용)
+function weightedPick6(weights) {
+  const pool = weights.map(w => ({ ...w }));  // 복사본
+  const selected = [];
+  for (let i = 0; i < 6; i++) {
+    const totalW = pool.reduce((s, w) => s + w.weight, 0);
+    let r = Math.random() * totalW;
+    for (let j = 0; j < pool.length; j++) {
+      r -= pool[j].weight;
+      if (r <= 0) {
+        selected.push(pool[j].num);
+        pool.splice(j, 1);
+        break;
+      }
+    }
+  }
+  return selected.sort((a, b) => a - b);
+}
+
+// 페이지 로드 시 통계 데이터 가져오기
+loadLottoStats();
+
+// 전구 생성
+const topBulbs = document.getElementById('top-bulbs');
+for (let i = 0; i < 18; i++) {
+  const b = document.createElement('div');
+  b.className = 'bulb';
+  b.style.animationDelay = (i * 0.08) + 's';
+  topBulbs.appendChild(b);
+}
+const machineBulbs = document.getElementById('machine-bulbs');
+for (let i = 0; i < 12; i++) {
+  const b = document.createElement('div');
+  b.className = 'bulb';
+  b.style.width = '13px';
+  b.style.height = '13px';
+  b.style.animationDelay = (i * 0.1) + 's';
+  machineBulbs.appendChild(b);
+}
+
+// 릴 초기화
+const reelsRow = document.getElementById('reels-row');
+const reelStrips = [];
+
+for (let i = 0; i < NUM_REELS; i++) {
+  const win = document.createElement('div');
+  win.className = 'reel-window';
+
+  const strip = document.createElement('div');
+  strip.className = 'reel-strip';
+
+  // 초기 셀 (물음표)
+  const cell = document.createElement('div');
+  cell.className = 'reel-cell';
+  cell.textContent = '??';
+  strip.appendChild(cell);
+
+  win.appendChild(strip);
+  reelsRow.appendChild(win);
+  reelStrips.push({ strip, window: win });
+}
+
+// ── 유틸 ──
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+function pick6(useRecent = false) {
+  const weights = useRecent ? lottoWeightsRecent : lottoWeights;
+  if (weights) return weightedPick6(weights);
+  // fallback: 균등
+  const pool = Array.from({ length: 45 }, (_, i) => i + 1);
+  const out = [];
+  while (out.length < 6) {
+    const idx = Math.floor(Math.random() * pool.length);
+    out.push(pool.splice(idx, 1)[0]);
+  }
+  return out.sort((a, b) => a - b);
+}
+
+function ballClass(n) {
+  if (n <= 10) return 'b1';
+  if (n <= 20) return 'b2';
+  if (n <= 30) return 'b3';
+  if (n <= 40) return 'b4';
+  return 'b5';
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+// ── 릴 스핀 애니메이션 ──
+async function spinReel(reelIdx, finalNum, totalDuration) {
+  const { strip, window: win } = reelStrips[reelIdx];
+  const cellHeight = win.offsetHeight; // 90px
+  const startTime = performance.now();
+
+  return new Promise(resolve => {
+    let lastTime = startTime;
+    let offset = 0;
+
+    function frame(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / totalDuration, 1);
+      // easeOutCubic 감속
+      const eased = 1 - Math.pow(1 - progress, 3);
+      // 초기 속도 → 감속
+      const speed = cellHeight * 0.8 * (1 - eased * 0.95) + cellHeight * 0.02;
+      const dt = now - lastTime;
+      lastTime = now;
+      offset += speed * (dt / 16);
+
+      // 새 랜덤 숫자 셀 추가
+      while (offset >= cellHeight) {
+        offset -= cellHeight;
+        const cell = document.createElement('div');
+        cell.className = 'reel-cell';
+        // 마지막 프레임이면 최종 번호
+        if (progress > 0.98) {
+          cell.textContent = pad2(finalNum);
+        } else {
+          cell.textContent = pad2(randInt(1, 45));
+        }
+        strip.insertBefore(cell, strip.firstChild);
+        // 오래된 셀 제거 (메모리)
+        while (strip.children.length > 8) {
+          strip.removeChild(strip.lastChild);
+        }
+      }
+
+      strip.style.transform = `translateY(${offset - cellHeight}px)`;
+
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        // 최종 숫자로 고정
+        strip.innerHTML = '';
+        const finalCell = document.createElement('div');
+        finalCell.className = 'reel-cell';
+        finalCell.textContent = pad2(finalNum);
+        strip.appendChild(finalCell);
+        strip.style.transform = 'translateY(0)';
+        resolve();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+// ── 레버 당기기 ──
+async function pullLever() {
+  if (isSpinning) return;
+  isSpinning = true;
+
+  const lever = document.getElementById('lever');
+  const rod   = document.getElementById('lever-rod');
+  const knob  = document.getElementById('lever-knob');
+  lever.classList.add('disabled');
+
+  // 레버 아래로
+  rod.classList.add('pulled');
+  knob.classList.add('pulled');
+
+  await sleep(350);
+
+  // 레버 복귀
+  rod.classList.remove('pulled');
+  knob.classList.remove('pulled');
+
+  // 모달 초기화
+  document.getElementById('tickets-container').innerHTML = '';
+  document.getElementById('modal-overlay').classList.remove('open');
+
+  // 슬롯 초기화
+  reelStrips.forEach(({ strip }) => {
+    strip.innerHTML = '';
+    const cell = document.createElement('div');
+    cell.className = 'reel-cell';
+    cell.textContent = '??';
+    strip.appendChild(cell);
+    strip.style.transform = 'translateY(0)';
+  });
+
+  // 최종 번호 생성
+  const finalNums = pick6();
+
+  // 릴 순차 스핀 (릴마다 약간 다른 시간)
+  const promises = finalNums.map((num, i) => {
+    const duration = 1800 + i * 400; // 1.8s ~ 3.8s
+    return sleep(i * 150).then(() => spinReel(i, num, duration));
+  });
+
+  await Promise.all(promises);
+
+  // 플래시 효과
+  spawnFlash();
+  await sleep(200);
+  spawnConfetti();
+
+  // 모달 팝업
+  await sleep(400);
+  await openModal();
+
+  lever.classList.remove('disabled');
+  isSpinning = false;
+}
+
+// ── 모달 열기 + 티켓 렌더링 ──
+async function openModal() {
+  const container = document.getElementById('tickets-container');
+  container.innerHTML = '';
+
+  const now = new Date();
+  const dateStr = now.getFullYear() + '/' +
+    String(now.getMonth()+1).padStart(2,'0') + '/' +
+    String(now.getDate()).padStart(2,'0') + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
+
+  // 통계 뱃지 (먼저 표시)
+  const badge = document.getElementById('stats-badge');
+  if (lottoMeta) {
+    badge.innerHTML =
+      `★ 1~${lottoMeta.latest_round}회 역대 출현 확률 기반 추첨 ★<br>` +
+      `<span style="color:#666;">(기준일: ${lottoMeta.fetched_at})</span>`;
+  } else {
+    badge.innerHTML = '★ 균등 확률 추첨 (통계 데이터 없음) ★';
+  }
+
+  // 티켓 5개 생성
+  // - #1,#2,#4,#5: 전체 회차 가중 확률
+  // - #3: 최근 100회 가중 확률 (HOT 번호 기반)
+  const RECENT_IDX = 2; // 0-indexed → 3번째 티켓
+  const recentLabel = lottoMeta
+    ? `${lottoMeta.recent100_start}~${lottoMeta.recent100_end}회 HOT`
+    : 'RECENT HOT';
+
+  const tickets = [];
+  for (let i = 0; i < 5; i++) {
+    const isRecent = (i === RECENT_IDX);
+    const nums   = pick6(isRecent);
+    const numStr = nums.map(pad2).join('  ');
+    const ticket = document.createElement('div');
+    ticket.className = isRecent ? 'ticket ticket-hot' : 'ticket';
+    ticket.innerHTML = isRecent
+      ? `<div class="ticket-label hot-label">🔥 ${recentLabel} 기반</div>
+         <div class="ticket-numbers">${numStr}</div>
+         <div class="ticket-issued">ISSUED: ${dateStr}</div>`
+      : `<div class="ticket-label">LUCKY TICKET #${i + 1}</div>
+         <div class="ticket-numbers">${numStr}</div>
+         <div class="ticket-issued">ISSUED: ${dateStr}</div>`;
+    container.appendChild(ticket);
+    tickets.push(ticket);
+  }
+
+  // 모달 오픈
+  document.getElementById('modal-overlay').classList.add('open');
+
+  // 티켓 순차 등장
+  for (let i = 0; i < tickets.length; i++) {
+    await sleep(i === 0 ? 120 : 150);
+    tickets[i].classList.add('show');
+  }
+}
+
+function closeModal(e) {
+  // 오버레이 바깥(배경) 클릭 시만 닫기
+  if (e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ── 플래시 ──
+function spawnFlash() {
+  const el = document.createElement('div');
+  el.className = 'jackpot-flash';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 300);
+}
+
+// ── 컨페티 ──
+function spawnConfetti() {
+  const colors = ['#ffd700','#ff4444','#44ff88','#44aaff','#ff44ff','#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-20px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1 + 's';
+    el.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+}
+</script>
+</body>
+</html>
