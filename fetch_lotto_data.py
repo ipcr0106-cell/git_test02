@@ -9,9 +9,15 @@ import requests
 import json
 import time
 import warnings
+import sys
+import io
 from datetime import datetime
 
 warnings.filterwarnings("ignore")
+
+# GitHub Actions (Ubuntu) 포함 모든 환경에서 한글 출력 보장
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 BASE = "https://www.dhlottery.co.kr"
 DELAY = 0.35  # 서버 부담 최소화
