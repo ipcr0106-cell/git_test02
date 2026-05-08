@@ -642,7 +642,7 @@ let lottoMeta          = null;
 
 function buildWeights(freqObj) {
   return Object.entries(freqObj).map(([num, cnt]) => ({
-    num: parseInt(num), weight: cnt,
+    num: parseInt(num), weight: Math.sqrt(cnt + 1),
   }));
 }
 
@@ -739,9 +739,15 @@ function weightedPick6(weights) {
   for (let i = 0; i < 6; i++) {
     const totalW = pool.reduce((s, w) => s + w.weight, 0);
     let r = Math.random() * totalW;
+    let picked = false;
     for (let j = 0; j < pool.length; j++) {
       r -= pool[j].weight;
-      if (r <= 0) { selected.push(pool[j].num); pool.splice(j, 1); break; }
+      if (r <= 0) { selected.push(pool[j].num); pool.splice(j, 1); picked = true; break; }
+    }
+    if (!picked) {
+      const last = pool.length - 1;
+      selected.push(pool[last].num);
+      pool.splice(last, 1);
     }
   }
   return selected.sort((a,b) => a - b);
