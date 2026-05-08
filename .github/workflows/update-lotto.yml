@@ -9,6 +9,9 @@ on:
   # 수동 실행도 가능 (GitHub Actions 탭에서 직접 트리거)
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-lotto-stats:
     runs-on: ubuntu-latest

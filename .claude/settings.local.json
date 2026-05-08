@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(gh run list --workflow=update-lotto.yml --limit 3)"
+    ]
+  }
+}
